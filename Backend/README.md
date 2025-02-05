@@ -89,3 +89,87 @@ Example:
 
 - Ensure that the `Content-Type` header is set to `application/json` when making the request.
 - The password is hashed before being stored in the database.
+
+# User Login Endpoint Documentation
+
+## Endpoint: `/users/login`
+
+### Method: POST
+
+### Description:
+
+This endpoint is used to log in an existing user. It requires the user's email and password.
+
+### Request Body:
+
+The request body should be a JSON object with the following properties:
+
+- `email` (string, required): The email address of the user. Must be a valid email format.
+- `password` (string, required): The password for the user account. Must be at least 6 characters long.
+
+Example:
+
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+```
+
+### Responses:
+
+#### Success (200):
+
+- **Description**: User successfully logged in.
+- **Body**: A JSON object containing the authentication token and user details.
+
+```json
+{
+  "token": "jwt_token_here",
+  "user": {
+    "_id": "user_id_here",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+#### Client Error (400):
+
+- **Description**: Validation error or missing required fields.
+- **Body**: A JSON object containing the validation errors.
+
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid Email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "Password not accepted",
+      "param": "password",
+      "location": "body"
+    }
+  ]
+}
+```
+
+#### Client Error (401):
+
+- **Description**: Invalid email or password.
+- **Body**: A JSON object containing the error message.
+
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+
+### Notes:
+
+- Ensure that the `Content-Type` header is set to `application/json` when making the request.

@@ -21,4 +21,13 @@ router.post(
   userController.registerUser
 );
 
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Invalid Email"),
+    body("password").isLength({ min: 6 }).withMessage("Password not accepted"), // Fixed typo
+  ],
+  userController.loginUser
+);
+
 module.exports = router;
