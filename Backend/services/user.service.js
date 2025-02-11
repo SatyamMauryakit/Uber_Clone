@@ -7,7 +7,7 @@ module.exports.createUser = async ({
   password,
 }) => {
   if (!firstname || !email || !password) {
-    throw new Error("All required fields must be provided");
+    throw Error("All required fields must be provided");
   }
 
   // Check if the user already exists

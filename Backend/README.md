@@ -173,3 +173,91 @@ Example:
 ### Notes:
 
 - Ensure that the `Content-Type` header is set to `application/json` when making the request.
+
+# User Profile Endpoint Documentation
+
+## Endpoint: `/users/profile`
+
+### Method: GET
+
+### Description:
+
+This endpoint is used to retrieve the profile information of the authenticated user.
+
+### Headers:
+
+- `Authorization` (string, required): The JWT token of the authenticated user.
+
+### Responses:
+
+#### Success (200):
+
+- **Description**: User profile successfully retrieved.
+- **Body**: A JSON object containing the user details.
+
+```json
+{
+  "_id": "user_id_here",
+  "firstname": "John",
+  "lastname": "Doe",
+  "email": "john.doe@example.com"
+}
+```
+
+#### Client Error (404):
+
+- **Description**: User not found.
+- **Body**: A JSON object containing the error message.
+
+```json
+{
+  "message": "User not found"
+}
+```
+
+#### Server Error (500):
+
+- **Description**: Server error.
+- **Body**: A JSON object containing the error message.
+
+```json
+{
+  "message": "Server error",
+  "error": "error_details_here"
+}
+```
+
+### Notes:
+
+- Ensure that the `Authorization` header is set to `Bearer <jwt_token>` when making the request.
+
+# User Logout Endpoint Documentation
+
+## Endpoint: `/users/logout`
+
+### Method: POST
+
+### Description:
+
+This endpoint is used to log out the authenticated user. It clears the authentication token from the cookies and blacklists the token.
+
+### Headers:
+
+- `Authorization` (string, required): The JWT token of the authenticated user.
+
+### Responses:
+
+#### Success (200):
+
+- **Description**: User successfully logged out.
+- **Body**: A JSON object containing the success message.
+
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+### Notes:
+
+- Ensure that the `Authorization` header is set to `Bearer <jwt_token>` when making the request.

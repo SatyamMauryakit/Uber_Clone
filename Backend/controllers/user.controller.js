@@ -1,30 +1,32 @@
 const userModel = require("../models/user.model");
-const userService = require("../services/user.service"); // Fixed spelling
+const userService = require("../services/user.service");
 const { validationResult } = require("express-validator");
+const BlacklistToken = require("../models/blacklistToken.model"); 
 
 module.exports.registerUser = async (req, res, next) => {
-  const errors = validationResult(req); // Changed 'error' to 'errors'
+  const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() }); // Fixed incorrect variable
+    return res.status(400).json({ errors: errors.array() });
   }
 
   console.log(req.body);
   const { fullname, email, password } = req.body;
 
-  // Check if fullname is an object or a string
   let firstname = "";
   let lastname = "";
-  if (typeof fullname === "object" && fullname.firstname && fullname.lastname) {
+
+  if (typeof fullname === "object" && fullname.firstname) {
     firstname = fullname.firstname;
-    lastname = fullname.lastname;
+    lastname = fullname.lastname || "";
   } else if (typeof fullname === "string") {
-    [firstname, lastname] = fullname.split(" ");
+    const nameParts = fullname.trim().split(" ");
+    firstname = nameParts[0];
+    lastname = nameParts.slice(1).join(" ") || "";
   }
 
   const hashedPassword = await userModel.hashPassword(password);
 
   const user = await userService.createUser({
-    // Fixed spelling of userService
     firstname,
     lastname,
     email,
@@ -35,22 +37,58 @@ module.exports.registerUser = async (req, res, next) => {
   res.status(201).json({ token, user });
 };
 
-module.exports.loginUser= async(req, res,next)=>{
-
-  const errors =validationResult(req);
-  if(!errors.isEmpty()){
-    return res.status(400).json({errors: errors.array()});
+module.exports.loginUser = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
-  const {email,password}=req.body;
-  const user= await userModel.findOne({email}).select('+password');
-  if(!user){
-    return res.status(401).json({message: 'Invalid email or Password'});
+  const { email, password } = req.body;
+  const user = await userModel.findOne({ email }).select("+password");
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
+
   const isMatch = await user.comparePassword(password);
-  if(!isMatch){
-    return res.status(401).json({message :'Invalid email or password'});
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
+
   const token = user.generateAuthToken();
-  res.status(200).json({token,user});
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  res.status(200).json({
+    message: "Login successful",
+    token,
+    user: {
+      id: user._id,
+      email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
+    },
+  });
+};
+
+module.exports.getUserProfile = async (req, res, next) => {
+  try {
+    const user = await userModel.findById(req.user._id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+module.exports.logoutUser = async (req, res, next)=>{
+  res.clrearCookie('token');
+
+  const token =req.cookies.token|| req.headers.authorization.split("")[1];
+  const blacklistToken = new BlacklistToken({token}); 
+   res.status(200).json({message: 'Logout successful'});
 }
