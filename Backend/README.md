@@ -256,6 +256,73 @@ This endpoint is used to log out the authenticated user. It clears the authentic
 {
   "message": "Logout successful"
 }
+  ```
+
+### Notes:
+
+- Ensure that the `Authorization` header is set to `Bearer <jwt_token>` when making the request.
+
+# Captain Profile Endpoint Documentation
+
+## Endpoint: `/captains/profile`
+
+### Method: GET
+
+### Description:
+
+This endpoint is used to retrieve the profile information of the authenticated captain.
+
+### Headers:
+
+- `Authorization` (string, required): The JWT token of the authenticated captain.
+
+### Responses:
+
+#### Success (200):
+
+- **Description**: Captain profile successfully retrieved.
+- **Body**: A JSON object containing the captain details.
+
+```json
+{
+  "captain": {
+    "_id": "captain_id_here",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+#### Client Error (404):
+
+- **Description**: Captain not found.
+- **Body**: A JSON object containing the error message.
+
+```json
+{
+  "message": "Captain not found"
+}
+```
+
+#### Server Error (500):
+
+- **Description**: Server error.
+- **Body**: A JSON object containing the error message.
+
+```json
+{
+  "message": "Server error",
+  "error": "error_details_here"
+}
 ```
 
 ### Notes:
